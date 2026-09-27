@@ -1,4 +1,6 @@
 from datetime import date
+import pandas as pd
+import csv
 
 class Habit:
     def __init__(self,name, date_started, streak, goal_streak, score, last_completed):
@@ -60,9 +62,6 @@ class Habit:
 
     def goal_reached(self):
         return self.streak >= self.goal_streak
-
-
-        
     
 class HabitTracker:
     def __init__(self, habits):
@@ -106,7 +105,45 @@ class HabitTracker:
                 if difference > 1:
                     h.reset_streak()
 
+class Storage:
+    def __init__(self, filename):
+        self.filename = filename
 
+    def save_habits(self, habits):
+        save_dict = []
 
+        for h in habits:
+            save_dict.append({
+                "name": h.name,
+                "date_started": h.date_started,
+                "streak": h.streak,
+                "goal_streak": h.goal_streak,
+                "score": h.score,
+                "last_completed": h.last_completed
+            })
 
+        df = pd.DataFrame(save_dict)
+        df.to_csv(self.filename, index=False)
+
+    def load_habits(self):
+        try:
+            df = pd.read_csv(self.filename)
+        except (FileNotFoundError, pd.errors.EmptyDataError):
+            return []
+
+        habits = []
+
+        for _, row in df.iterrows():
+            name = row["name"]
+            date_started = date.fromisoformat(row["date_started"])
+            streak = row["streak"]
+            goal_streak = row["goal_streak"]
+            score = row["score"]
+            if pd.isna(row["last_completed"]):
+                last_completed = None
+            else:
+                last_completed = date.fromisoformat(row["last_completed"])
+            habits.append(Habit(name, date_started, streak, goal_streak, score, last_completed))
+
+        return habits
 
