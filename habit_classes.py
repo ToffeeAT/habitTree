@@ -1,6 +1,6 @@
 from datetime import date
 import pandas as pd
-import csv
+
 
 class Habit:
     def __init__(self,name, date_started, streak, goal_streak, score, last_completed):
